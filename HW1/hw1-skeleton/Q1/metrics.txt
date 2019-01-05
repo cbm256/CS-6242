@@ -1,0 +1,11 @@
+1. Average Node Degree = 1.516
+
+It is the average number of edges which are connected to each node 
+
+2. Diameter of the Graph = 10
+
+It is the maximum number of edges connecting any 2 nodes in the graph 
+
+3. Average Path Length = 2.512
+
+It is the average shortest distance between any pairs of nodes in the graph.  

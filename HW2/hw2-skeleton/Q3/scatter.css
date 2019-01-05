@@ -1,0 +1,23 @@
+.axis path,
+.axis line {
+    fill: none;
+    stroke: #000;
+    shape-rendering: crispEdges;
+}
+
+.tick line{
+    opacity: 0.2;
+}
+
+text {
+    font: 10px sans-serif;
+}
+
+#container {
+    float: left;
+}
+
+#legend {
+    float: left;
+}
+.pagebreak { page-break-before: always; }

@@ -1,0 +1,11 @@
+Wins+Nominations vs IMdb Rating seems to be a better feature combination than Budget Vs IMDb
+Rating for separating the classes. Visually, it is clearly visible in the scatter plot that
+red circles are mostly scattered in the range of "0 to 20" of WinsNoms and "2.5 to 7.5" on 
+the IMDb Rating axis. While in the Budget Vs IMDb Rating Scatterplot, the circles and crosses
+are broadly scattered over the canvas which makes it difficult to separate the classes
+
+
+
+Log Scale are mostly used when the data is continuous. It addresses the skewness towards large
+values which are less frequent than the bulk of data.Like in the movies dataset, WinNoms varies
+from 0 to 271 and there are only 15 values which are greater than 100 rest all are less than 100.

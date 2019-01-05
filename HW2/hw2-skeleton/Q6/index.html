@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+</head>
+<body>
+  <style>
+      .tool {
+          height: 120px;
+          width: 200px;
+          background-color: rgb(244, 239, 94,.8);
+          font: sans-serif;
+          font-size: 12px;
+          font-weight: bolder;
+      }
+      .tooltext{
+        margin: 5% 5%;
+      }
+  </style>
+
+<script src="/lib/d3.v3.min.js"></script>
+<script src='/lib/topojson.v1.min.js'></script>
+<script src="/lib/d3.tip.v0.6.3.js"></script>
+<script src="/lib/d3-queue.v3.min.js"></script>
+
+<script>
+	var margin = {top: 50, left: 130, bottom: 80, right: 50};
+	var width = 1100 - margin.left - margin.right;
+	var height = 700 - margin.top - margin.bottom;
+
+	var svg = d3.select('body').append('svg')
+            .attr('width', width + margin.left + margin.right)
+            .attr('height', height + margin.top + margin.bottom)
+
+    var g = svg.append("g")
+        .attr("transform", "translate("+margin.left+", "+margin.top+")");
+
+    d3.queue()
+	    .defer(d3.json, "us.json")
+	    .defer(d3.csv, "education.csv")
+	    .defer(d3.csv, "education_details.csv")
+	    .await(ready);
+
+	var path = d3.geo.path();
+
+    function ready(error, us, education,education_details)
+    {	 
+     if (error) throw error;
+     percent_educated_map = {};
+     country_name = {};
+     education.forEach(function(d) {
+     	d.percent_educated = +d.percent_educated
+      percent_educated_map[d.id] = d.percent_educated
+      country_name[d.id] = d.name
+     });
+
+
+    
+
+     console.log(percent_educated_map)
+     console.log(country_name)
+
+     var colorScale = d3.scale.threshold()
+                          .domain([10,20,30,40,50,60,70,80,90])
+                          .range(['#fff5eb', '#fee6ce', '#fdd0a2', '#fdae6b', '#fd8d3c', '#f16913', '#d94801', '#a63603', '#7f2704']);
+
+      quap = {};
+      highs = {};
+      msl = {};
+      education_details.forEach(function(d){
+        quap[d.id] = d.qualified_professionals
+        highs[d.id] =  d.high_school
+        msl[d.id] = d.middle_school_or_lower
+
+      })
+
+
+      var tooltip = d3.tip().attr('class','d3-tip').html(
+      function(d){
+        var county = country_name[d.id]
+        var percent= percent_educated_map[d.id]+'%'
+        var qp = quap[d.id]
+        var hs = highs[d.id]
+        var ms = msl[d.id]
+        return "<div class = 'tool'><p class ='tooltext'>County: "+county+"</p><p class ='tooltext'>Percentaged Educated: " +percent+"</p><p class ='tooltext'>Qualified Professionals: "+qp +"</p><p class ='tooltext'>HS graduates: "+hs+"</p><p class ='tooltext'>MS or lower graduates: "+ms+"</p>"
+        }
+      );
+
+      g.call(tooltip)                    
+
+      g.append("g")
+        .attr("class", "states")
+        .selectAll("path")
+        .data(topojson.feature(us, us.objects.counties).features)
+        .enter()
+        .append("path")
+        .attr("d", path)
+        .attr('fill',function(d){
+          return colorScale(percent_educated_map[d.id])
+        })
+        .attr('stroke','black')
+        .on('mouseover',tooltip.show)
+        .on('mouseout',tooltip.hide)
+
+        svg.append('text')
+            .attr("class", "title")
+            .attr("x", width/2)
+            .attr("y", 50)
+            .text('Education Statistics in the USA')
+            .attr('fill','black')
+            .attr("font-size", "30px")
+            .attr('font-weight','bold')
+
+        var legend = g.selectAll("legend")
+                .data([10,20,30,40,50,60,70,80,90])
+                .enter()
+        legend.append('rect')
+                .attr("class", "legend")
+                .attr("x", 0)
+                .attr("y", function(d, i){ return i*50})
+                .attr("width", 30)
+                .attr("height", 50)
+                .style("fill", function(d, i) {return colorScale(d); })
+        legend.append('text')
+                .attr("class", "legend")
+                .attr("x", -30)
+                .attr("y", function(d, i){ return i*50+40})
+                .text(function(d){
+                  return d +'%'
+                })
+                .style("fill", 'black')
+    
+  }
+
+
+</script>
+</body>
+</html>

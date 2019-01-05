@@ -1,0 +1,140 @@
+
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <title>kgupta307</title>
+        <script type="text/javascript" src="d3/d3.v3.min.js"></script>
+    </head>
+	<style>
+	p {
+		text-align: center;
+	}
+	#svg_chart {
+		margin-left:auto;
+		margin-right:auto;
+		display:block;
+	}	
+	</style>
+    <style type="text/css">
+
+			.axis path,
+			.axis line {
+				fill: none;
+				stroke: black;
+				shape-rendering: crispEdges;
+			}
+
+			.axis text {
+				font-family: sans-serif;
+				font-size: 11px;
+			}
+
+		</style>
+    <body>
+        <script type="text/javascript">
+
+		function getRandomInt(min, max) 
+		{
+		    return Math.floor(Math.random() * (max - min + 1)) + min;
+		}
+		var data_tri = [], data_crs =[]
+
+		for (var i=0; i<30; i++)
+            {
+				data_tri.push([getRandomInt(0,100),getRandomInt(0,100)]);
+				data_crs.push([getRandomInt(0,100),getRandomInt(0,100)]);
+            }
+
+		d3.select("body")
+			.append("p")
+			.attr("class","name")
+			.text("Kuhu Gupta");
+
+		var margin = {top: 20, right: 15, bottom: 60, left: 60}
+		  , width = 500 - margin.left - margin.right
+		  , height = 500 - margin.top - margin.bottom;
+
+
+
+		var xScale = d3.scale.linear()
+		          .domain([0, d3.max(data_tri, function(d) { return d[0]; })])
+		          .range([ 0, width]);
+
+		var yScale = d3.scale.linear()
+		          .domain([0, d3.max(data_crs, function(d) { return d[0]; })])
+		          .range([ height, 0 ]);
+
+        var sizeMax = d3.max([d3.max(data_crs, function(d) { return d[0];}), d3.max(data_tri, function(d) { return d[0];})])
+
+        var sizeScale = d3.scale.linear()
+		          .domain([0, sizeMax])
+		          .range([ 5, 50 ]);
+
+        var colorScale = d3.mean([d3.mean(data_crs, function(d) { return d[0];}), d3.mean(data_tri, function(d) { return d[0];})])
+
+        function symbolcolor(x)
+		{
+		    if (x > colorScale){
+		        return "blue";
+		    }
+		    else {
+                return "green";
+            }
+		}
+
+		var chart = d3.select('body')
+		.append('svg:svg')
+		.attr('width', width + margin.right + margin.left)
+		.attr('height', height + margin.top + margin.bottom)
+		.attr('class', 'chart')
+		.attr('id', 'svg_chart')
+
+
+		var main = chart.append('g')
+		.attr('transform', 'translate(' + margin.left + ',' + margin.top + ')')
+		.attr('width', width)
+		.attr('height', height)
+		.attr('class', 'main')   
+
+		var xAxis1 = d3.svg.axis()
+		.scale(xScale)
+		.orient('bottom');
+
+		main.append('g')
+		.attr('transform', 'translate(0,' + height + ')')
+		.attr('class', 'main axis date')
+		.call(xAxis1);
+
+		var yAxis1 = d3.svg.axis()
+		.scale(yScale)
+		.orient('left');
+
+		main.append('g')
+		.attr('transform', 'translate(0,0)')
+		.attr('class', 'main axis date')
+		.call(yAxis1);
+
+
+        var g = main.append("svg:g");
+
+		g.selectAll("path")
+                .data(data_tri)
+                .enter()
+                .append("path")
+                .attr("d", d3.svg.symbol('cross').size(function(d){ return sizeScale(d[0]);}))
+                .style("fill", function(d){ return symbolcolor(d[0]) ;})
+                .attr("transform", function(d) { return "translate("+xScale(d[0])+","+yScale(d[1])+")"; });
+
+        g.selectAll("null")
+                .data(data_crs)
+                .enter()
+                .append("path")
+                .attr("d", d3.svg.symbol().type('triangle-up').size(function(d){ return sizeScale(d[0]);}))
+                .style("fill", function(d){ return symbolcolor(d[0]) ;})
+                .attr("transform", function(d) { return "translate("+xScale(d[0])+","+yScale(d[1])+")"; });
+
+
+        </script>
+    </body>
+</html>     

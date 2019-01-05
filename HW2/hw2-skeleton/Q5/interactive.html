@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html>
+<head>
+    
+</head>
+<body>
+<div class = 'chart-area'></div>
+<script src="../lib/d3.v3.min.js"></script>
+<script type="text/javascript">
+
+        var data = [{city: 'San Antonio', population_2012: 1383505, growth: {year_2013:25405, year_2014:26644 , year_2015:28593 , year_2016:23591 , year_2017:24208}},
+                    {city: 'New York', population_2012: 8383504, growth: {year_2013:75138 , year_2014:62493 , year_2015:61324 , year_2016:32967 , year_2017:7272}},
+                    {city: 'Chicago', population_2012: 2717989, growth: {year_2013:6493 , year_2014:2051 , year_2015:-1379 , year_2016:-4879 , year_2017:-3825}},
+                    {city: 'Los Angeles', population_2012: 3859267, growth:{year_2013:32516 , year_2014:30885 , year_2015:30791 , year_2016:27657 , year_2017:18643}},
+                    {city: 'Phoenix', population_2012: 1495880, growth: {year_2013:25302 , year_2014:26547 , year_2015:27310 , year_2016:27003 , year_2017:24036}}];
+
+        data = data.sort(function (a, b) {
+            return d3.ascending((a.population_2012+a.growth.year_2013+a.growth.year_2014+a.growth.year_2015+a.growth.year_2016+a.growth.year_2017), (b.population_2012+b.growth.year_2013+b.growth.year_2014+b.growth.                      year_2015+b.growth.year_2016+b.growth.year_2017));
+            })
+
+        var margin = { left:150, right:20, top:50, bottom:100 };
+        var width = 600 - margin.left - margin.right,
+            height = 600 - margin.top - margin.bottom;
+
+        var svg = d3.select(".chart-area")
+                    .append("svg")
+                        .attr("width", width + margin.left + margin.right)
+                        .attr("height", height + margin.top + margin.bottom)
+
+        var g1 = svg.append('g')
+                    .attr("width", width/2)
+                    .attr("height", height )
+                	.attr("transform",'translate('+margin.left+','+margin.top+')');
+
+        var svg2 = d3.select(".chart-area")
+                	.append("svg")
+                        .attr("width", width + margin.left + margin.right)
+                        .attr("height", height + margin.top + margin.bottom)
+
+        var g2 = svg2.append('g')
+        			.attr("width", width/2)
+        			.attr("height", height )
+        			.attr("transform",'translate('+margin.left+ ','+margin.top+')')
+			
+
+        var xScale = d3.scale.linear()
+            .domain([0, d3.max(data, function(d){
+                return (d.population_2012+d.growth.year_2013+d.growth.year_2014+d.growth.year_2015+d.growth.year_2016+d.growth.year_2017);
+            })])
+            .range([0, width]);
+
+        var yScale = d3.scale.ordinal()
+            .domain(data.map(function(d){ return d.city;}))
+            .rangeBands([height,0]);
+
+        var yAxis = d3.svg.axis()
+            .scale(yScale)
+            .orient("left")
+
+        g1.append("g")
+            .attr("class", "y axis")
+            .call(yAxis)
+            .style('font-size',25)
+            .attr("transform","translate(0,-10)");
+
+        g1.selectAll(".domain").remove();
+
+        var bars = g1.selectAll("rect")
+                    .data(data)
+                    .enter()
+                    .append('rect')
+                    .attr('x',0)
+                    .attr('y',function(d,i){
+                    	return yScale(d.city)
+                    })
+                    .attr('width',function(d){
+                    	return xScale(d.population_2012+d.growth.year_2013+d.growth.year_2014+d.growth.year_2015+d.growth.year_2016+d.growth.year_2017);
+                    })
+                    .attr('height', 50)
+                    .attr('fill','Grey')
+                    .on('mouseover',function(d){
+                    	pop_change_13 = (d.growth.year_2013/d.population_2012)*100;
+                        pop_change_14 = (d.growth.year_2014/(d.population_2012+d.growth.year_2013))*100;
+                        pop_change_15 = (d.growth.year_2015/(d.population_2012+d.growth.year_2013+d.growth.year_2014))*100;
+                        pop_change_16 = (d.growth.year_2016/(d.population_2012+d.growth.year_2013+d.growth.year_2014+d.growth.year_2015))*100;
+                        pop_change_17 = (d.growth.year_2017/(d.population_2012+d.growth.year_2013+d.growth.year_2014+d.growth.year_2015+d.growth.year_2016))*100;
+
+
+                        line_chart_Data = [{'year':'2013','value':pop_change_13}, {'year':'2014','value':pop_change_14}, {'year':'2015','value':pop_change_15}, {'year':'2016','value':pop_change_16}, {'year':'2017','value':pop_change_17}];
+
+                	var line_ScaleX = d3.scale.ordinal()
+        						.domain(line_chart_Data.map(function(d){ return d.year;}))
+        						.rangeBands([0,height]);
+
+                	var line_ScaleY= d3.scale.linear()
+                					.domain(d3.extent(line_chart_Data,function(d){return d.value}))
+                					.range([height,0]);
+
+                	var line = d3.svg.line()
+        							.x(function(d) { return line_ScaleX(d.year); })
+        							.y(function(d) { return line_ScaleY(+d.value); });
+
+                    var line_AxisX = d3.svg.axis()
+                                        .scale(line_ScaleX)
+                                        .orient("bottom")
+
+                    var line_AxisY = d3.svg.axis()
+                                        .scale(line_ScaleY)
+                                        .orient("left")
+
+            	    selected_bar = d3.select(this).attr('fill','#1e90ff')
+            	
+                	g2.append('path')
+                		.data([line_chart_Data])
+                		.attr('class','linechart')
+                		.attr('d',line)
+                		.attr('fill','None')
+                		.attr('stroke-width','2px')
+                		.attr('stroke','#1e90ff')
+	
+    				g2.append("g")
+    				  .attr("class", "linechart")
+    				  .attr("transform", "translate(0," + height + ")")
+    				  .call(line_AxisX)
+                      .style({ 'stroke': 'black', 'fill': 'none', 'stroke-width': '1px'});
+
+    				g2.append("g")
+    				  .attr("class", "linechart")
+    				  .call(line_AxisY)
+                      .style({ 'stroke': 'black', 'fill': 'none', 'stroke-width': '1px'});
+				  
+    				g2.append("text")
+    				    .attr("y", -60)
+    				    .attr("x", -(height / 2))
+    				    .attr('class','linechart')
+    				    .attr("font-size", "20px")
+    				    .attr("text-anchor", "middle")
+    				    .attr("transform", "rotate(-90)")
+    				    .text("Percentage Change %");
+
+    				g2.append("text")
+    				    .attr("y", height+50)
+    				    .attr("x", width/4)
+    				    .attr('class','linechart')
+    				    .attr("font-size", "20px")
+    				    .attr("text-anchor", "middle")
+    				    .text("Year");
+				
+    				g2.append("text")
+    				    .attr("y", 0)
+    				    .attr("x", width/4)
+    				    .attr('class','linechart')
+    				    .attr("font-size", "20px")
+    				    .attr('font-weight','bold')
+    				    .attr("text-anchor", "middle")
+    				    .text(d.city);
+                    })
+
+                    .on('mouseout',function(d){
+                    	sselected_bar = d3.select(this)
+                    	selected_bar.attr('fill','grey')
+                    	g2.selectAll(".linechart").remove();
+                    });
+
+
+        var text = g1.append('g')
+            			.selectAll("text")
+                        .data(data)
+                        .enter()
+                        .append('text')
+                        .attr('x',10)
+                        .attr('y',function(d,i){
+                        	return yScale(d.city) + 50/1.9
+                        })
+                        .text(function(d){
+                        	var val = d.population_2012 + d.growth.year_2013 + d.growth.year_2014 + d.growth.year_2015 + d.growth.year_2016 + d.growth.year_2017
+                        	return Math.round(val).toLocaleString();
+                        })
+                        .style('font','sans-serif')
+                        .style("font-size", "15px")
+            			.attr('fill','white')
+            </script>
+</body>
+</html>

@@ -1,0 +1,14 @@
+c.i    	value.replace("F","1")
+	value.replace("M","0")
+
+c.ii 	toString(value)
+	value.replace("null","0")
+
+	toString(value)
+	value.replace("null","0")
+
+c.iii 	value.replace("55+","56-100")
+
+c.iv	if(value.toNumber()>1000,"1","0")
+
+c.v 	"3319,P00025442"

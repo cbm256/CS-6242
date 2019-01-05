@@ -1,0 +1,3 @@
+1. Filter nodes with less than 6 degrees to show most important nodes and relationships
+2. Use layout Yifan Hu with default settings to cluster nodes appropriately
+3. Size nodes and labels based on degree to highlight important nodes 
